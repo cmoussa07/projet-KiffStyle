@@ -116,7 +116,17 @@ function App() {
             />
           }
         />
-        <Route path="/produit/:id" element={<DetailProduit />} />
+        <Route
+          path="/produits/:id"
+          element={
+            <DetailProduit
+              produits={produits}
+              panier={panier}
+              ajouterAuPanier={ajouterAuPanier}
+              diminuerQuantite={diminuerQuantite}
+            />
+          }
+        />
         <Route
           path="/panier"
           element={

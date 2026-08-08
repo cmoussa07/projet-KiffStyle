@@ -16,11 +16,16 @@ function Panier({
     <div className="min-h-screen bg-gray-50 px-4 py-10 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Titre */}
-        <div className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Mon Panier
-          </h1>
-
+        <div className=" mb-10">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl md:text-4xl text-gray-900">Mon Panier</h1>
+            <Link
+              to="/produits"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition"
+            >
+              Voir les produits
+            </Link>
+          </div>
           <p className="text-gray-500 mt-2">
             {nombreArticlesPanier} article
             {nombreArticlesPanier > 1 ? "s" : ""} dans votre panier
@@ -39,12 +44,6 @@ function Panier({
             <p className="text-gray-500">
               Ajoutez quelques produits pour commencer vos achats.
             </p>
-            <Link
-              to="/produits"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition"
-            >
-              Voir les produits
-            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
