@@ -48,6 +48,33 @@ function App() {
     },
   ];
 
+  async function ajouterProduit(produit) {
+    try {
+      const nouveauProduit = await fetch(
+        "https://jsonplaceholder.typicode.com/posts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(produit),
+        },
+      );
+
+      if (!nouveauProduit.ok) {
+        throw new Error(
+          `Erreur lors de l'ajout du produit ${nouveauProduit.status}`,
+        );
+      }
+
+      const data = await nouveauProduit.json();
+
+      console.log(data);
+    } catch (err) {
+      console.log("Une erreur est survenue", err);
+    }
+  }
+
   const produitsFiltres = produits.filter((produit) =>
     produit.nom.toLowerCase().includes(recherche.toLowerCase()),
   );
