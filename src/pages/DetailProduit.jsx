@@ -1,15 +1,64 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { ShoppingCart, ArrowLeft, Truck, ShieldCheck } from "lucide-react";
 
-function DetailProduit({
-  produits,
-  panier,
-  ajouterAuPanier,
-  diminuerQuantite,
-}) {
+function DetailProduit({ panier, ajouterAuPanier, diminuerQuantite }) {
   const { id } = useParams();
 
-  const produit = produits.find((produit) => produit.id === Number(id));
+  const [produit, setProduit] = useState(null);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState("");
+
+  useEffect(() => {
+    async function chargerProduit() {
+      try {
+        const reponse = await fetch(`http://localhost:3000/api/produits/${id}`);
+
+        if (!reponse.ok) {
+          throw new Error(`Erreur HTTP : ${reponse.status}`);
+        }
+
+        const data = await reponse.json();
+
+        setProduit(data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération du produit :", err);
+        setErreur("Impossible de récupérer le produit.");
+      } finally {
+        setChargement(false);
+      }
+    }
+
+    chargerProduit();
+  }, [id]);
+
+  if (chargement) {
+    return (
+      <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-[400px] text-center">
+        <div className="text-6xl mb-4 animate-pulse">⏳</div>
+        <p className="text-gray-500">Chargement du produit...</p>
+      </div>
+    );
+  }
+
+  if (erreur) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <div className="text-6xl mb-4">😵</div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Oups, une erreur est survenue
+        </h1>
+        <p className="text-gray-500 mb-6">{erreur}</p>
+        <Link
+          to="/produits"
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour aux produits
+        </Link>
+      </div>
+    );
+  }
 
   if (!produit) {
     return (

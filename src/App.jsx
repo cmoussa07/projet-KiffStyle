@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
@@ -17,63 +17,32 @@ import adidas from "./assets/adidas.jpg";
 function App() {
   const [recherche, setRecherche] = useState("");
   const [panier, setPanier] = useState([]);
-  const produits = [
-    {
-      id: 1,
-      nom: "Nike Air Max",
-      prix: 45000,
-      stock: 8,
-      image: nike,
-    },
-    {
-      id: 2,
-      nom: "Puma RS-X",
-      prix: 35000,
-      stock: 0,
-      image: puma,
-    },
-    {
-      id: 3,
-      nom: "Casio Vintage",
-      prix: 30000,
-      stock: 5,
-      image: casio,
-    },
-    {
-      id: 4,
-      nom: "Adidas Superstar",
-      prix: 50000,
-      stock: 10,
-      image: adidas,
-    },
-  ];
+  const [produits, setProduits] = useState([]);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState("");
 
-  async function ajouterProduit(produit) {
-    try {
-      const nouveauProduit = await fetch(
-        "https://jsonplaceholder.typicode.com/posts",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(produit),
-        },
-      );
+  useEffect(() => {
+    const chargerProduits = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/produits");
 
-      if (!nouveauProduit.ok) {
-        throw new Error(
-          `Erreur lors de l'ajout du produit ${nouveauProduit.status}`,
-        );
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP : ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        setProduits(data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des produits:", err);
+        setErreur("Impossible de récupérer le produit.");
+      } finally {
+        setChargement(false);
       }
+    };
 
-      const data = await nouveauProduit.json();
-
-      console.log(data);
-    } catch (err) {
-      console.log("Une erreur est survenue", err);
-    }
-  }
+    chargerProduits();
+  }, []);
 
   const produitsFiltres = produits.filter((produit) =>
     produit.nom.toLowerCase().includes(recherche.toLowerCase()),
@@ -140,6 +109,8 @@ function App() {
               panier={panier}
               ajouterAuPanier={ajouterAuPanier}
               diminuerQuantite={diminuerQuantite}
+              erreur={erreur}
+              chargement={chargement}
             />
           }
         />
@@ -147,7 +118,6 @@ function App() {
           path="/produits/:id"
           element={
             <DetailProduit
-              produits={produits}
               panier={panier}
               ajouterAuPanier={ajouterAuPanier}
               diminuerQuantite={diminuerQuantite}
