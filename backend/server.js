@@ -1,6 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 
+const pool = require("./src/config/database");
+
+pool.query("SELECT NOW()", (err, result) => {
+  if (err) {
+    console.error("Erreur PostgreSQL :", err);
+    return;
+  }
+
+  console.log("Connexion PostgreSQL réussie :", result.rows[0]);
+});
+
 const app = express();
 
 const PORT = 3000;

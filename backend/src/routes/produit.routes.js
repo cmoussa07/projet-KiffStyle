@@ -7,11 +7,13 @@ const {
   obtenirProduit,
   ajouterProduit,
   mettreAJourProduit,
+  retirerProduit,
 } = require("../controllers/produit.controller");
 
 router.get("/", obtenirProduits);
 router.get("/:id", obtenirProduit);
 router.post("/", ajouterProduit);
 router.put("/:id", mettreAJourProduit);
+router.delete("/:id", retirerProduit);
 
 module.exports = router;

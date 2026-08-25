@@ -60,9 +60,23 @@ function modifierProduit(id, donneesProduit) {
   return produits[index];
 }
 
+function supprimerProduit(id) {
+  const index = produits.findIndex((produit) => produit.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const produitSupprime = produits[index];
+  produits.splice(index, 1);
+
+  return produitSupprime;
+}
+
 module.exports = {
   obtenirTousLesProduits,
   obtenirProduitParId,
   creerProduit,
   modifierProduit,
+  supprimerProduit,
 };

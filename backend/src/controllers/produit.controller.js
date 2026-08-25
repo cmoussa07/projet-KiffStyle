@@ -3,6 +3,7 @@ const {
   obtenirProduitParId,
   creerProduit,
   modifierProduit,
+  supprimerProduit,
 } = require("../services/produit.service");
 
 function obtenirProduits(req, res) {
@@ -45,9 +46,27 @@ function mettreAJourProduit(req, res) {
   res.status(200).json(produitModifie);
 }
 
+function retirerProduit(req, res) {
+  const id = Number(req.params.id);
+
+  const produitSupprime = supprimerProduit(id);
+
+  if (!produitSupprime) {
+    return res.status(404).json({
+      message: "Produit introuvable",
+    });
+  }
+
+  res.status(204).json({
+    message: "Produit supprimé avec succès",
+    produit: produitSupprime,
+  });
+}
+
 module.exports = {
   obtenirProduits,
   obtenirProduit,
   ajouterProduit,
   mettreAJourProduit,
+  retirerProduit,
 };
