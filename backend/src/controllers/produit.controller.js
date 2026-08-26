@@ -2,6 +2,8 @@ const {
   obtenirTousLesProduits,
   obtenirProduitParId,
   creerProduit,
+  modifierProduit,
+  supprimerProduit,
 } = require("../services/produit.service");
 
 async function obtenirProduits(req, res) {
@@ -69,7 +71,13 @@ async function ajouterProduit(req, res) {
 
 async function mettreAJourProduit(req, res) {
   try {
-    const { id, nom, prix, stock, categorie_id } = req.body;
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Id invalide" });
+    }
+
+    const { nom, prix, stock, categorie_id } = req.body;
 
     if (
       !req.body ||
@@ -83,14 +91,46 @@ async function mettreAJourProduit(req, res) {
       });
     }
 
-    const produit = await creerProduit(req.body);
+    const produit = await modifierProduit(id, req.body);
 
-    res.status(201).json(produit);
+    if (!produit) {
+      return res.status(404).json({
+        message: "Produit non trouvé",
+      });
+    }
+
+    res.status(200).json(produit);
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
     res.status(500).json({
-      message: "Erreur lors de la création du produit",
+      message: "Erreur lors de la mise à jour du produit",
+    });
+  }
+}
+
+async function retirerProduit(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Id invalide" });
+    }
+
+    const produit = await supprimerProduit(id);
+
+    if (!produit) {
+      return res.status(404).json({
+        message: "Produit non trouvé",
+      });
+    }
+
+    res.status(204).json(produit);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la suppression du produit",
     });
   }
 }
@@ -100,4 +140,5 @@ module.exports = {
   obtenirProduit,
   ajouterProduit,
   mettreAJourProduit,
+  retirerProduit,
 };
