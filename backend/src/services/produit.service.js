@@ -1,82 +1,29 @@
-const produits = [
-  {
-    id: 1,
-    nom: "Nike Air Max",
-    prix: 45000,
-    stock: 8,
-  },
-  {
-    id: 2,
-    nom: "Puma RS-X",
-    prix: 35000,
-    stock: 0,
-  },
-  {
-    id: 3,
-    nom: "Casio Vintage",
-    prix: 30000,
-    stock: 5,
-  },
-  {
-    id: 4,
-    nom: "Adidas Superstar",
-    prix: 50000,
-    stock: 10,
-  },
-];
+const pool = require("../config/database");
 
-function obtenirTousLesProduits() {
-  return produits;
+async function obtenirTousLesProduits() {
+  const resultat = await pool.query("SELECT * FROM produits");
+  return resultat.rows;
 }
 
-function obtenirProduitParId(id) {
-  return produits.find((produit) => produit.id === id);
+async function obtenirProduitParId(id) {
+  const resultat = await pool.query("SELECT * FROM produits WHERE id = $1", [
+    id,
+  ]);
+
+  return resultat.rows[0];
 }
 
-function creerProduit(donneesProduit) {
-  const nouveauProduit = {
-    id: produits.length + 1,
-    ...donneesProduit,
-  };
-
-  produits.push(nouveauProduit);
-
-  return nouveauProduit;
-}
-
-function modifierProduit(id, donneesProduit) {
-  const index = produits.findIndex((produit) => produit.id === id);
-
-  if (index === -1) {
-    return null;
-  }
-
-  produits[index] = {
-    ...produits[index],
-    ...donneesProduit,
-    id: id,
-  };
-
-  return produits[index];
-}
-
-function supprimerProduit(id) {
-  const index = produits.findIndex((produit) => produit.id === id);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const produitSupprime = produits[index];
-  produits.splice(index, 1);
-
-  return produitSupprime;
+async function creerProduit(donnees) {
+  const { nom, prix, stock, categorie_id } = donnees;
+  const resultat = await pool.query(
+    "INSERT INTO produits (nom, prix, stock, categorie_id) VALUES ($1, $2, $3, $4) RETURNING *",
+    [nom, prix, stock, categorie_id],
+  );
+  return resultat.rows[0];
 }
 
 module.exports = {
   obtenirTousLesProduits,
   obtenirProduitParId,
   creerProduit,
-  modifierProduit,
-  supprimerProduit,
 };

@@ -2,65 +2,97 @@ const {
   obtenirTousLesProduits,
   obtenirProduitParId,
   creerProduit,
-  modifierProduit,
-  supprimerProduit,
 } = require("../services/produit.service");
 
-function obtenirProduits(req, res) {
-  const produits = obtenirTousLesProduits();
+async function obtenirProduits(req, res) {
+  try {
+    const produits = await obtenirTousLesProduits();
 
-  res.json(produits);
-}
+    res.status(200).json(produits);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
 
-function obtenirProduit(req, res) {
-  const id = Number(req.params.id);
-
-  const produit = obtenirProduitParId(id);
-
-  if (!produit) {
-    return res.status(404).json({
-      message: "Produit introuvable",
+    res.status(500).json({
+      message: "Erreur lors de la récupération des produits",
     });
   }
-
-  res.json(produit);
 }
 
-function ajouterProduit(req, res) {
-  const nouveauProduit = creerProduit(req.body);
+async function obtenirProduit(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const produit = await obtenirProduitParId(id);
 
-  res.status(201).json(nouveauProduit);
-}
+    if (!produit) {
+      return res.status(404).json({
+        message: "Produit non trouvé",
+      });
+    }
 
-function mettreAJourProduit(req, res) {
-  const id = Number(req.params.id);
+    res.status(200).json(produit);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
 
-  const produitModifie = modifierProduit(id, req.body);
-
-  if (!produitModifie) {
-    return res.status(404).json({
-      message: "Produit introuvable",
+    res.status(500).json({
+      message: "Erreur lors de la récupération du produit",
     });
   }
-
-  res.status(200).json(produitModifie);
 }
 
-function retirerProduit(req, res) {
-  const id = Number(req.params.id);
+async function ajouterProduit(req, res) {
+  try {
+    const { nom, prix, stock, categorie_id } = req.body;
 
-  const produitSupprime = supprimerProduit(id);
+    if (
+      !req.body ||
+      !nom ||
+      prix === undefined ||
+      stock === undefined ||
+      categorie_id === undefined
+    ) {
+      return res.status(400).json({
+        message: "Données du produit incomplètes",
+      });
+    }
 
-  if (!produitSupprime) {
-    return res.status(404).json({
-      message: "Produit introuvable",
+    const produit = await creerProduit(req.body);
+
+    res.status(201).json(produit);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la création du produit",
     });
   }
+}
 
-  res.status(204).json({
-    message: "Produit supprimé avec succès",
-    produit: produitSupprime,
-  });
+async function mettreAJourProduit(req, res) {
+  try {
+    const { id, nom, prix, stock, categorie_id } = req.body;
+
+    if (
+      !req.body ||
+      !nom ||
+      prix === undefined ||
+      stock === undefined ||
+      categorie_id === undefined
+    ) {
+      return res.status(400).json({
+        message: "Données du produit incomplètes",
+      });
+    }
+
+    const produit = await creerProduit(req.body);
+
+    res.status(201).json(produit);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la création du produit",
+    });
+  }
 }
 
 module.exports = {
@@ -68,5 +100,4 @@ module.exports = {
   obtenirProduit,
   ajouterProduit,
   mettreAJourProduit,
-  retirerProduit,
 };
