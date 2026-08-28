@@ -23,6 +23,10 @@ async function obtenirProduits(req, res) {
 async function obtenirProduit(req, res) {
   try {
     const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Id invalide" });
+    }
+
     const produit = await obtenirProduitParId(id);
 
     if (!produit) {
@@ -125,7 +129,9 @@ async function retirerProduit(req, res) {
       });
     }
 
-    res.status(204).json(produit);
+    /* TODO: remplacer par res.status(204).send() une fois que le frontend
+    n'aura plus besoin du corps de la réponse (204 = No Content) */
+    res.status(200).json(produit);
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 

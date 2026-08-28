@@ -9,6 +9,8 @@ import DetailProduit from "./pages/DetailProduit";
 import Panier from "./pages/Panier";
 import NotFound from "./pages/NotFound";
 
+import { obtenirProduits } from "./services/produit.service.js";
+
 import nike from "./assets/nike.jpg";
 import puma from "./assets/puma.jpg";
 import casio from "./assets/casio.jpg";
@@ -24,17 +26,11 @@ function App() {
   useEffect(() => {
     const chargerProduits = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/produits");
-
-        if (!response.ok) {
-          throw new Error(`Erreur HTTP : ${response.status}`);
-        }
-
-        const data = await response.json();
-
+        const data = await obtenirProduits();
         setProduits(data);
       } catch (err) {
         console.error("Erreur lors de la récupération des produits:", err);
+
         setErreur("Impossible de récupérer le produit.");
       } finally {
         setChargement(false);
@@ -43,6 +39,30 @@ function App() {
 
     chargerProduits();
   }, []);
+
+  async function ajouterProduit(produit) {
+    try {
+      const response = await fetch("http://localhost:3000/api/produits", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(produit),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP : ${response.status}`);
+      }
+
+      const nouveauProduit = await response.json();
+
+      setProduits((ancienProduits) => [...ancienProduits, nouveauProduit]);
+
+      console.log("Produit créé :", nouveauProduit);
+    } catch (err) {
+      console.error("Erreur lors de la création du produit:", err);
+    }
+  }
 
   const produitsFiltres = produits.filter((produit) =>
     produit.nom.toLowerCase().includes(recherche.toLowerCase()),
@@ -86,7 +106,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header panier={panier} nombreArticlesPanier={nombreArticlesPanier} />
-
       <Routes>
         <Route
           path="/"
