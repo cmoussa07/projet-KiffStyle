@@ -3,13 +3,18 @@ import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 
+import { obtenirProduits } from "./services/produit.service.js";
+
 import Accueil from "./pages/Accueil";
 import Produits from "./pages/Produits";
 import DetailProduit from "./pages/DetailProduit";
 import Panier from "./pages/Panier";
 import NotFound from "./pages/NotFound";
 
-import { obtenirProduits } from "./services/produit.service.js";
+import Dashboard from "./pages/admin/Dashboard";
+import ProduitsAdmin from "./pages/admin/ProduitsAdmin";
+import NouveauProduit from "./pages/admin/NouveauProduit";
+import ModifierProduit from "./pages/admin/ModifierProduit";
 
 import nike from "./assets/nike.jpg";
 import puma from "./assets/puma.jpg";
@@ -27,6 +32,7 @@ function App() {
     const chargerProduits = async () => {
       try {
         const data = await obtenirProduits();
+
         setProduits(data);
       } catch (err) {
         console.error("Erreur lors de la récupération des produits:", err);
@@ -107,6 +113,7 @@ function App() {
     <div className="min-h-screen bg-gray-100">
       <Header panier={panier} nombreArticlesPanier={nombreArticlesPanier} />
       <Routes>
+        /* Client route */
         <Route
           path="/"
           element={
@@ -155,6 +162,15 @@ function App() {
             />
           }
         />
+        /* Admin route */
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/produits" element={<ProduitsAdmin />} />
+        <Route path="/admin/produits/nouveau" element={<NouveauProduit />} />
+        <Route
+          path="/admin/produits/:id/modifier"
+          element={<ModifierProduit />}
+        />
+        /* route Inconnue */
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
