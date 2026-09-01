@@ -6,7 +6,7 @@ const {
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-async function ajouterUtilisateur(req, res) {
+async function inscrireUtilisateur(req, res) {
   try {
     const { nom, email, mot_de_passe } = req.body;
 
@@ -90,6 +90,6 @@ async function connecterUtilisateur(req, res) {
 }
 
 module.exports = {
-  ajouterUtilisateur,
+  inscrireUtilisateur,
   connecterUtilisateur,
 };

@@ -3,11 +3,23 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  ajouterUtilisateur,
+  inscrireUtilisateur,
   connecterUtilisateur,
 } = require("../controllers/utilisateur.controller");
 
-router.post("/inscription", ajouterUtilisateur);
+const {
+  verifierToken,
+  verifierAdmin,
+} = require("../middlewares/auth.middleware");
+
+router.post("/inscription", inscrireUtilisateur);
 router.post("/connexion", connecterUtilisateur);
+
+router.get("/profil", verifierToken, verifierAdmin, (req, res) => {
+  res.json({
+    message: "Accès autorisé",
+    utilisateur: req.utilisateur,
+  });
+});
 
 module.exports = router;
