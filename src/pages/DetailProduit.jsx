@@ -2,6 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ShoppingCart, ArrowLeft, Truck, ShieldCheck } from "lucide-react";
 
+import { obtenirProduitParId } from "../services/produit.service.js";
+
 function DetailProduit({ panier, ajouterAuPanier, diminuerQuantite }) {
   const { id } = useParams();
 
@@ -12,13 +14,7 @@ function DetailProduit({ panier, ajouterAuPanier, diminuerQuantite }) {
   useEffect(() => {
     async function chargerProduit() {
       try {
-        const reponse = await fetch(`http://localhost:3000/api/produits/${id}`);
-
-        if (!reponse.ok) {
-          throw new Error(`Erreur HTTP : ${reponse.status}`);
-        }
-
-        const data = await reponse.json();
+        const data = await obtenirProduitParId(id);
 
         setProduit(data);
       } catch (err) {

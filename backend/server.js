@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 
 const pool = require("./src/config/database");
 
@@ -26,8 +27,12 @@ app.get("/", (req, res) => {
 });
 
 const produitRoutes = require("./src/routes/produit.routes");
+const categorieRoutes = require("./src/routes/categorie.routes");
+const utilisateurRoutes = require("./src/routes/utilisateur.routes");
 
 app.use("/api/produits", produitRoutes);
+app.use("/api/categories", categorieRoutes);
+app.use("/api/utilisateurs", utilisateurRoutes);
 
 app.listen(PORT, () => {
   console.log(`Serveur KiffStyle lancé sur http://localhost:${PORT}`);
