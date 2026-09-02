@@ -1,6 +1,6 @@
 function HeroSection() {
   return (
-    <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+    <section className="bg-linear-to-r from-blue-600 to-indigo-700 text-white">
       <div className="max-w-7xl mx-auto px-8 py-20 text-center">
         <h2 className="text-5xl font-bold mb-6">Bienvenue chez KiffStyle</h2>
 

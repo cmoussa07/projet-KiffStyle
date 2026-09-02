@@ -24,7 +24,17 @@ async function trouverUtilisateurParEmail(email) {
   return resultat.rows[0];
 }
 
+async function trouverUtilisateurParId(id) {
+  const resultat = await pool.query(
+    "SELECT id, nom, email, role, created_at FROM utilisateurs WHERE id = $1",
+    [id],
+  );
+
+  return resultat.rows[0];
+}
+
 module.exports = {
   creerUtilisateur,
   trouverUtilisateurParEmail,
+  trouverUtilisateurParId,
 };

@@ -1,6 +1,7 @@
 const {
   creerUtilisateur,
   trouverUtilisateurParEmail,
+  trouverUtilisateurParId,
 } = require("../services/utilisateur.service");
 
 const bcrypt = require("bcrypt");
@@ -89,7 +90,32 @@ async function connecterUtilisateur(req, res) {
   }
 }
 
+async function obtenirProfil(req, res) {
+  try {
+    const id = Number(req.utilisateur.id);
+
+    const utilisateur = await trouverUtilisateurParId(id);
+
+    if (!utilisateur) {
+      return res.status(404).json({
+        message: "Utilisateur non trouvé",
+      });
+    }
+
+    res.status(200).json(utilisateur);
+  } catch (err) {
+    console.error(
+      `Erreur PostgreSQL pour utilisateur ID=${req.utilisateur.id} :`,
+      err,
+    );
+    res.status(500).json({
+      message: "Erreur lors de la récupération du profil",
+    });
+  }
+}
+
 module.exports = {
   inscrireUtilisateur,
   connecterUtilisateur,
+  obtenirProfil,
 };
