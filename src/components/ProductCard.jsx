@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, Minus, Plus } from "lucide-react";
 
 function ProductCard({ produit, panier, ajouterAuPanier, diminuerQuantite }) {
   if (!produit) return null;
@@ -11,83 +11,88 @@ function ProductCard({ produit, panier, ajouterAuPanier, diminuerQuantite }) {
   const quantiteDansPanier = articlePanier ? articlePanier.quantite : 0;
 
   return (
-    <div className="group bg-white rounded-2xl shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 hover:-translate-y-2 overflow-hidden flex flex-col h-full">
-      {/* Image avec zoom au survol */}
-      <div className="relative overflow-hidden aspect-square bg-gray-50">
-        <img
-          src={image}
-          alt={nom}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+    <article className="bg-surface border border-surface-variant rounded-lg overflow-hidden hover:shadow-lg transition-shadow group flex flex-col">
+      <div className="relative aspect-square p-4 bg-white flex items-center justify-center">
+        {disponible ? (
+          <div className="absolute top-4 left-4 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-1 rounded-full flex items-center gap-1 z-10">
+            <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>{" "}
+            Disponible
+          </div>
+        ) : (
+          <div className="absolute top-4 left-4 bg-error-container text-on-error-container font-label-sm text-label-sm px-2 py-1 rounded-full flex items-center gap-1 z-10">
+            <span className="w-1.5 h-1.5 rounded-full bg-error"></span> Rupture
+          </div>
+        )}
 
-        {/* Badge de stock repositionné sur l'image */}
-        <div className="absolute top-3 left-3">
-          {disponible ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm">
-              🟢 Disponible
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-red-700 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-sm">
-              🔴 Rupture
-            </span>
-          )}
-        </div>
-
-        {/* Icône "voir détails" qui apparaît au survol */}
         <Link
           to={`/produits/${produit.id}`}
-          className="absolute top-3 right-3 bg-white/90 backdrop-blur p-2 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white"
+          className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white z-10"
         >
-          <Eye className="h-4 w-4 text-gray-700" />
+          <Eye className="h-4 w-4 text-on-background" />
         </Link>
+
+        <img
+          className={`w-full h-auto object-contain transition-transform duration-300 ${
+            disponible
+              ? "group-hover:-translate-y-2"
+              : "opacity-60 grayscale-[50%]"
+          }`}
+          alt={nom}
+          src={image}
+        />
       </div>
 
-      <div className="p-5 flex flex-col flex-1">
-        {/* Nom du produit */}
-        <h3 className="text-lg font-semibold text-gray-900 mb-1 tracking-wide line-clamp-1">
+      <div className="p-4 flex flex-col flex-grow border-t border-surface-variant">
+        <h3 className="font-title-md text-title-md text-on-background mb-2 line-clamp-1">
           {nom}
         </h3>
 
-        {/* Prix + livraison sur la même ligne */}
-        <div className="flex items-baseline justify-between mb-4">
-          <p className="text-xl font-bold text-blue-600">
+        <div className="flex items-baseline justify-between mb-2">
+          <span
+            className={`font-label-bold text-label-bold ${
+              disponible ? "text-on-background" : "text-on-surface-variant"
+            }`}
+          >
             {prix.toLocaleString()} FCFA
-          </p>
-          <p className="text-xs text-gray-400">Livraison offerte</p>
+          </span>
+          <span className="font-label-sm text-label-sm text-outline">
+            Livraison offerte
+          </span>
         </div>
 
-        {/* Bouton, poussé en bas grâce à mt-auto */}
         {quantiteDansPanier === 0 ? (
           <button
             disabled={!disponible}
             onClick={() => ajouterAuPanier(produit)}
-            className="mt-auto cursor-pointer flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="mt-auto flex items-center justify-center gap-2 bg-primary text-on-primary font-label-bold text-label-bold py-2.5 rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:bg-surface-variant disabled:text-outline disabled:cursor-not-allowed"
           >
             <ShoppingCart className="h-4 w-4" />
             {disponible ? "Ajouter au panier" : "Indisponible"}
           </button>
         ) : (
-          <div className="mt-auto flex items-center justify-between bg-gray-100 rounded-xl p-2">
+          <div className="mt-auto flex items-center justify-between bg-surface-container rounded-full p-2">
             <button
               onClick={() => diminuerQuantite(produit.id)}
-              className="w-10 h-10 rounded-lg bg-white shadow hover:bg-gray-50 transition"
+              className="w-9 h-9 rounded-full bg-surface shadow hover:bg-surface-variant transition flex items-center justify-center text-on-background"
             >
-              −
+              <Minus className="h-4 w-4" />
             </button>
 
-            <span className="text-lg font-bold">{quantiteDansPanier}</span>
+            <span className="font-label-bold text-label-bold text-on-background">
+              {quantiteDansPanier}
+            </span>
 
             <button
               onClick={() => ajouterAuPanier(produit)}
               disabled={quantiteDansPanier >= stock}
-              className="w-10 h-10 rounded-lg bg-blue-600 text-white shadow hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+              className="w-9 h-9 rounded-full bg-primary text-on-primary shadow hover:scale-105 disabled:bg-surface-variant disabled:text-outline disabled:cursor-not-allowed transition flex items-center justify-center"
             >
-              +
+              <Plus className="h-4 w-4" />
             </button>
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 

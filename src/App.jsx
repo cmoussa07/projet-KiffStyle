@@ -111,15 +111,18 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header panier={panier} nombreArticlesPanier={nombreArticlesPanier} />
+      <Header
+        recherche={recherche}
+        setRecherche={setRecherche}
+        panier={panier}
+        nombreArticlesPanier={nombreArticlesPanier}
+      />
       <Routes>
-        /* Client route */
+        {/* Routes client */}
         <Route
           path="/"
           element={
             <Accueil
-              recherche={recherche}
-              setRecherche={setRecherche}
               produits={produitsFiltres}
               panier={panier}
               ajouterAuPanier={ajouterAuPanier}
@@ -162,7 +165,7 @@ function App() {
             />
           }
         />
-        /* Admin route */
+        {/* Routes Admin */}
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/produits" element={<ProduitsAdmin />} />
         <Route path="/admin/produits/nouveau" element={<NouveauProduit />} />
@@ -170,7 +173,7 @@ function App() {
           path="/admin/produits/:id/modifier"
           element={<ModifierProduit />}
         />
-        /* route Inconnue */
+        {/* Route inconnue */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
