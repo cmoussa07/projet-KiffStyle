@@ -27,6 +27,12 @@ async function inscrireUtilisateur(req, res) {
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
+    if (err.code === "23505") {
+      return res.status(409).json({
+        message: "Cette adresse email est déjà utilisée",
+      });
+    }
+
     res.status(500).json({
       message: "Erreur lors de l'inscription",
     });
