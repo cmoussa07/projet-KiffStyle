@@ -17,6 +17,15 @@ async function inscrireUtilisateur(req, res) {
       });
     }
 
+    // Vérification de la validité de l'adresse email avec une expression régulière (regex)
+    const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!emailValide) {
+      return res.status(400).json({
+        message: "Adresse email invalide",
+      });
+    }
+
     if (mot_de_passe.length < 8) {
       return res.status(400).json({
         message: "Le mot de passe doit contenir au moins 8 caractères",
@@ -33,6 +42,7 @@ async function inscrireUtilisateur(req, res) {
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
+    // Vérification des erreurs de contrainte d'unicité pour l'email
     if (err.code === "23505") {
       return res.status(409).json({
         message: "Cette adresse email est déjà utilisée",
