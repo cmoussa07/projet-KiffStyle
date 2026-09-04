@@ -1,6 +1,5 @@
 const pool = require("../config/database");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 async function creerUtilisateur(donnees) {
   const { nom, email, mot_de_passe, role = "client" } = donnees;
@@ -33,8 +32,20 @@ async function trouverUtilisateurParId(id) {
   return resultat.rows[0];
 }
 
+async function modifierUtilisateur(id, donnees) {
+  const { nom, email } = donnees;
+
+  const resultat = await pool.query(
+    "UPDATE utilisateurs SET nom = $1, email = $2 WHERE id = $3 RETURNING id, nom, email, role",
+    [nom, email, id],
+  );
+
+  return resultat.rows[0];
+}
+
 module.exports = {
   creerUtilisateur,
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
+  modifierUtilisateur,
 };

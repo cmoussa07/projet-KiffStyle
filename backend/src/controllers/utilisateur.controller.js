@@ -2,6 +2,7 @@ const {
   creerUtilisateur,
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
+  modifierUtilisateur,
 } = require("../services/utilisateur.service");
 
 const bcrypt = require("bcrypt");
@@ -136,8 +137,39 @@ async function obtenirProfil(req, res) {
   }
 }
 
+async function modifierProfil(req, res) {
+  try {
+    const id = req.utilisateur.id;
+
+    const { nom, email } = req.body;
+
+    if (!req.body || !nom || !email) {
+      return res.status(400).json({
+        message: "Données de l'utilisateur incomplètes",
+      });
+    }
+
+    const utilisateur = await modifierUtilisateur(id, req.body);
+
+    if (!utilisateur) {
+      return res.status(404).json({
+        message: "utilisateur non trouvé",
+      });
+    }
+
+    res.status(200).json(utilisateur);
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la mise à jour de l'utilisateur",
+    });
+  }
+}
+
 module.exports = {
   inscrireUtilisateur,
   connecterUtilisateur,
   obtenirProfil,
+  modifierProfil,
 };
