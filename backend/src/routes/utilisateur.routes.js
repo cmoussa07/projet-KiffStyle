@@ -7,6 +7,7 @@ const {
   connecterUtilisateur,
   obtenirProfil,
   modifierProfil,
+  modifierMotDePasse,
 } = require("../controllers/utilisateur.controller");
 
 const { verifierToken } = require("../middlewares/auth.middleware");
@@ -16,5 +17,6 @@ router.post("/connexion", connecterUtilisateur);
 
 router.get("/profil", verifierToken, obtenirProfil);
 router.put("/profil", verifierToken, modifierProfil);
+router.put("/mot-de-passe", verifierToken, modifierMotDePasse);
 
 module.exports = router;

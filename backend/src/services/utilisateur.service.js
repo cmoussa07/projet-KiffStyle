@@ -43,9 +43,49 @@ async function modifierUtilisateur(id, donnees) {
   return resultat.rows[0];
 }
 
+async function trouverUtilisateurAvecMotDePasse(id) {
+  const resultat = await pool.query(
+    "SELECT id, nom, email, role, mot_de_passe, created_at FROM utilisateurs WHERE id = $1",
+    [id],
+  );
+
+  return resultat.rows[0];
+}
+
+async function remplacerMotDePasse(
+  id,
+  ancien_mot_de_passe,
+  nouveau_mot_de_passe,
+) {
+  const utilisateur = await trouverUtilisateurAvecMotDePasse(id);
+
+  if (!utilisateur) {
+    return null;
+  }
+
+  const motDePasseCorrect = await bcrypt.compare(
+    ancien_mot_de_passe,
+    utilisateur.mot_de_passe,
+  );
+
+  if (!motDePasseCorrect) {
+    return { erreur: "Ancien mot de passe incorrect" };
+  }
+
+  const nouveauMotDePasseHash = await bcrypt.hash(nouveau_mot_de_passe, 12);
+
+  const resultat = await pool.query(
+    "UPDATE utilisateurs SET mot_de_passe = $1 WHERE id = $2 RETURNING id, nom, email, role",
+    [nouveauMotDePasseHash, id],
+  );
+
+  return resultat.rows[0];
+}
+
 module.exports = {
   creerUtilisateur,
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
   modifierUtilisateur,
+  remplacerMotDePasse,
 };

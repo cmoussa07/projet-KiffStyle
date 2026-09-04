@@ -3,6 +3,7 @@ const {
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
   modifierUtilisateur,
+  remplacerMotDePasse,
 } = require("../services/utilisateur.service");
 
 const bcrypt = require("bcrypt");
@@ -39,7 +40,10 @@ async function inscrireUtilisateur(req, res) {
       mot_de_passe,
     });
 
-    res.status(201).json(utilisateur);
+    res.status(201).json({
+      message: "Inscription réussie",
+      utilisateur: utilisateur,
+    });
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
@@ -167,9 +171,53 @@ async function modifierProfil(req, res) {
   }
 }
 
+async function modifierMotDePasse(req, res) {
+  try {
+    const id = req.utilisateur.id;
+
+    const { ancien_mot_de_passe, nouveau_mot_de_passe } = req.body;
+
+    if (!req.body || !ancien_mot_de_passe || !nouveau_mot_de_passe) {
+      return res.status(400).json({
+        message: "Tous les champs sont obligatoires",
+      });
+    }
+
+    const utilisateur = await remplacerMotDePasse(
+      id,
+      ancien_mot_de_passe,
+      nouveau_mot_de_passe,
+    );
+
+    if (!utilisateur) {
+      return res.status(404).json({
+        message: "utilisateur non trouvé",
+      });
+    }
+
+    if (utilisateur.erreur === "Ancien mot de passe incorrect") {
+      return res.status(401).json({
+        message: "Ancien mot de passe incorrect",
+      });
+    }
+
+    res.status(200).json({
+      message: "Mot de passe modifié avec succès",
+      utilisateur: utilisateur,
+    });
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la modification du mot de passe",
+    });
+  }
+}
+
 module.exports = {
   inscrireUtilisateur,
   connecterUtilisateur,
   obtenirProfil,
   modifierProfil,
+  modifierMotDePasse,
 };
