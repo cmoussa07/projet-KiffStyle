@@ -4,6 +4,7 @@ const {
   trouverUtilisateurParId,
   modifierUtilisateur,
   remplacerMotDePasse,
+  supprimerUtilisateur,
 } = require("../services/utilisateur.service");
 
 const bcrypt = require("bcrypt");
@@ -161,7 +162,10 @@ async function modifierProfil(req, res) {
       });
     }
 
-    res.status(200).json(utilisateur);
+    res.status(200).json({
+      message: "Profil modifié avec succès",
+      utilisateur: utilisateur,
+    });
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
@@ -214,10 +218,34 @@ async function modifierMotDePasse(req, res) {
   }
 }
 
+async function supprimerMonCompte(req, res) {
+  try {
+    const id = req.utilisateur.id;
+
+    const utilisateurSupprime = await supprimerUtilisateur(id);
+
+    if (!utilisateurSupprime) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({
+      message: "Compte supprimé avec succès",
+      utilisateur: utilisateurSupprime,
+    });
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la suppression du compte",
+    });
+  }
+}
+
 module.exports = {
   inscrireUtilisateur,
   connecterUtilisateur,
   obtenirProfil,
   modifierProfil,
   modifierMotDePasse,
+  supprimerMonCompte,
 };

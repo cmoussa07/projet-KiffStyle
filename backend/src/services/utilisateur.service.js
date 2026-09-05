@@ -82,10 +82,19 @@ async function remplacerMotDePasse(
   return resultat.rows[0];
 }
 
+async function supprimerUtilisateur(id) {
+  const resultat = await pool.query(
+    "DELETE FROM utilisateurs WHERE id = $1 RETURNING id, nom, email, role",
+    [id],
+  );
+  return resultat.rows[0];
+}
+
 module.exports = {
   creerUtilisateur,
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
   modifierUtilisateur,
   remplacerMotDePasse,
+  supprimerUtilisateur,
 };
