@@ -29,6 +29,10 @@ async function inscrireUtilisateur(req, res) {
       });
     }
 
+    // Normalisation de l'email pour éviter les problèmes de casse et d'espaces
+    const emailNormalise = email.trim().toLowerCase();
+
+    // validation du mot de passe pour les mots de passe trop courts
     if (mot_de_passe.length < 8) {
       return res.status(400).json({
         message: "Le mot de passe doit contenir au moins 8 caractères",
@@ -37,7 +41,7 @@ async function inscrireUtilisateur(req, res) {
 
     const utilisateur = await creerUtilisateur({
       nom,
-      email,
+      email: emailNormalise,
       mot_de_passe,
     });
 
@@ -154,7 +158,13 @@ async function modifierProfil(req, res) {
       });
     }
 
-    const utilisateur = await modifierUtilisateur(id, req.body);
+    // Normalisation de l'email pour éviter les problèmes de casse et d'espaces
+    const emailNormalise = email.trim().toLowerCase();
+
+    const utilisateur = await modifierUtilisateur(id, {
+      nom,
+      email: emailNormalise,
+    });
 
     if (!utilisateur) {
       return res.status(404).json({
@@ -187,6 +197,13 @@ async function modifierMotDePasse(req, res) {
       });
     }
 
+    // validation du nouveau mot de passe pour les mots de passe trop courts
+    if (nouveau_mot_de_passe.length < 8) {
+      return res.status(400).json({
+        message: "Le nouveau mot de passe doit contenir au moins 8 caractères",
+      });
+    }
+
     const utilisateur = await remplacerMotDePasse(
       id,
       ancien_mot_de_passe,
@@ -199,9 +216,20 @@ async function modifierMotDePasse(req, res) {
       });
     }
 
+    // Gestion des erreurs spécifiques pour l'ancien mot de passe incorrect
     if (utilisateur.erreur === "Ancien mot de passe incorrect") {
       return res.status(401).json({
         message: "Ancien mot de passe incorrect",
+      });
+    }
+
+    // Gestion des erreurs spécifiques pour le nouveau mot de passe identique à l'ancien
+    if (
+      utilisateur.erreur ===
+      "Le nouveau mot de passe doit être différent de l'ancien"
+    ) {
+      return res.status(400).json({
+        message: "Le nouveau mot de passe doit être différent de l'ancien",
       });
     }
 

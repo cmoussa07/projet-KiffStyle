@@ -63,6 +63,7 @@ async function remplacerMotDePasse(
     return null;
   }
 
+  // Vérification de l'ancien mot de passe correspond au mot de passe de la base de donnée
   const motDePasseCorrect = await bcrypt.compare(
     ancien_mot_de_passe,
     utilisateur.mot_de_passe,
@@ -70,6 +71,18 @@ async function remplacerMotDePasse(
 
   if (!motDePasseCorrect) {
     return { erreur: "Ancien mot de passe incorrect" };
+  }
+
+  // Vérification si le nouveau mot de passe est identique à l'ancien
+  const motDePasseIdentique = await bcrypt.compare(
+    nouveau_mot_de_passe,
+    utilisateur.mot_de_passe,
+  );
+
+  if (motDePasseIdentique) {
+    return {
+      erreur: "Le nouveau mot de passe doit être différent de l'ancien",
+    };
   }
 
   const nouveauMotDePasseHash = await bcrypt.hash(nouveau_mot_de_passe, 12);
