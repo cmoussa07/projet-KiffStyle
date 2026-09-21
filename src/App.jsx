@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import { obtenirProduits } from "./services/produit.service.js";
 
 import Accueil from "./pages/Accueil";
+import Connexion from "./pages/Connexion";
 import Produits from "./pages/Produits";
 import DetailProduit from "./pages/DetailProduit";
 import Panier from "./pages/Panier";
@@ -143,6 +144,7 @@ function App() {
             />
           }
         />
+        <Route path="/connexion" element={<Connexion />} />
         <Route
           path="/produits/:id"
           element={
