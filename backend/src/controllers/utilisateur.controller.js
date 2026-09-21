@@ -3,6 +3,8 @@ const {
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
   modifierUtilisateur,
+  remplacerMotDePasse,
+  supprimerUtilisateur,
 } = require("../services/utilisateur.service");
 
 const bcrypt = require("bcrypt");
@@ -27,6 +29,10 @@ async function inscrireUtilisateur(req, res) {
       });
     }
 
+    // Normalisation de l'email pour éviter les problèmes de casse et d'espaces
+    const emailNormalise = email.trim().toLowerCase();
+
+    // validation du mot de passe pour les mots de passe trop courts
     if (mot_de_passe.length < 8) {
       return res.status(400).json({
         message: "Le mot de passe doit contenir au moins 8 caractères",
@@ -35,11 +41,14 @@ async function inscrireUtilisateur(req, res) {
 
     const utilisateur = await creerUtilisateur({
       nom,
-      email,
+      email: emailNormalise,
       mot_de_passe,
     });
 
-    res.status(201).json(utilisateur);
+    res.status(201).json({
+      message: "Inscription réussie",
+      utilisateur: utilisateur,
+    });
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
@@ -149,7 +158,13 @@ async function modifierProfil(req, res) {
       });
     }
 
-    const utilisateur = await modifierUtilisateur(id, req.body);
+    // Normalisation de l'email pour éviter les problèmes de casse et d'espaces
+    const emailNormalise = email.trim().toLowerCase();
+
+    const utilisateur = await modifierUtilisateur(id, {
+      nom,
+      email: emailNormalise,
+    });
 
     if (!utilisateur) {
       return res.status(404).json({
@@ -157,7 +172,10 @@ async function modifierProfil(req, res) {
       });
     }
 
-    res.status(200).json(utilisateur);
+    res.status(200).json({
+      message: "Profil modifié avec succès",
+      utilisateur: utilisateur,
+    });
   } catch (err) {
     console.error("Erreur PostgreSQL :", err);
 
@@ -167,9 +185,95 @@ async function modifierProfil(req, res) {
   }
 }
 
+async function modifierMotDePasse(req, res) {
+  try {
+    const id = req.utilisateur.id;
+
+    const { ancien_mot_de_passe, nouveau_mot_de_passe } = req.body;
+
+    if (!req.body || !ancien_mot_de_passe || !nouveau_mot_de_passe) {
+      return res.status(400).json({
+        message: "Tous les champs sont obligatoires",
+      });
+    }
+
+    // validation du nouveau mot de passe pour les mots de passe trop courts
+    if (nouveau_mot_de_passe.length < 8) {
+      return res.status(400).json({
+        message: "Le nouveau mot de passe doit contenir au moins 8 caractères",
+      });
+    }
+
+    const utilisateur = await remplacerMotDePasse(
+      id,
+      ancien_mot_de_passe,
+      nouveau_mot_de_passe,
+    );
+
+    if (!utilisateur) {
+      return res.status(404).json({
+        message: "utilisateur non trouvé",
+      });
+    }
+
+    // Gestion des erreurs spécifiques pour l'ancien mot de passe incorrect
+    if (utilisateur.erreur === "Ancien mot de passe incorrect") {
+      return res.status(401).json({
+        message: "Ancien mot de passe incorrect",
+      });
+    }
+
+    // Gestion des erreurs spécifiques pour le nouveau mot de passe identique à l'ancien
+    if (
+      utilisateur.erreur ===
+      "Le nouveau mot de passe doit être différent de l'ancien"
+    ) {
+      return res.status(400).json({
+        message: "Le nouveau mot de passe doit être différent de l'ancien",
+      });
+    }
+
+    res.status(200).json({
+      message: "Mot de passe modifié avec succès",
+      utilisateur: utilisateur,
+    });
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la modification du mot de passe",
+    });
+  }
+}
+
+async function supprimerMonCompte(req, res) {
+  try {
+    const id = req.utilisateur.id;
+
+    const utilisateurSupprime = await supprimerUtilisateur(id);
+
+    if (!utilisateurSupprime) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({
+      message: "Compte supprimé avec succès",
+      utilisateur: utilisateurSupprime,
+    });
+  } catch (err) {
+    console.error("Erreur PostgreSQL :", err);
+
+    res.status(500).json({
+      message: "Erreur lors de la suppression du compte",
+    });
+  }
+}
+
 module.exports = {
   inscrireUtilisateur,
   connecterUtilisateur,
   obtenirProfil,
   modifierProfil,
+  modifierMotDePasse,
+  supprimerMonCompte,
 };

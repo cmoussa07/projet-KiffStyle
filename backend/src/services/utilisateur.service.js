@@ -43,9 +43,71 @@ async function modifierUtilisateur(id, donnees) {
   return resultat.rows[0];
 }
 
+async function trouverUtilisateurAvecMotDePasse(id) {
+  const resultat = await pool.query(
+    "SELECT id, nom, email, role, mot_de_passe, created_at FROM utilisateurs WHERE id = $1",
+    [id],
+  );
+
+  return resultat.rows[0];
+}
+
+async function remplacerMotDePasse(
+  id,
+  ancien_mot_de_passe,
+  nouveau_mot_de_passe,
+) {
+  const utilisateur = await trouverUtilisateurAvecMotDePasse(id);
+
+  if (!utilisateur) {
+    return null;
+  }
+
+  // Vérification de l'ancien mot de passe correspond au mot de passe de la base de donnée
+  const motDePasseCorrect = await bcrypt.compare(
+    ancien_mot_de_passe,
+    utilisateur.mot_de_passe,
+  );
+
+  if (!motDePasseCorrect) {
+    return { erreur: "Ancien mot de passe incorrect" };
+  }
+
+  // Vérification si le nouveau mot de passe est identique à l'ancien
+  const motDePasseIdentique = await bcrypt.compare(
+    nouveau_mot_de_passe,
+    utilisateur.mot_de_passe,
+  );
+
+  if (motDePasseIdentique) {
+    return {
+      erreur: "Le nouveau mot de passe doit être différent de l'ancien",
+    };
+  }
+
+  const nouveauMotDePasseHash = await bcrypt.hash(nouveau_mot_de_passe, 12);
+
+  const resultat = await pool.query(
+    "UPDATE utilisateurs SET mot_de_passe = $1 WHERE id = $2 RETURNING id, nom, email, role",
+    [nouveauMotDePasseHash, id],
+  );
+
+  return resultat.rows[0];
+}
+
+async function supprimerUtilisateur(id) {
+  const resultat = await pool.query(
+    "DELETE FROM utilisateurs WHERE id = $1 RETURNING id, nom, email, role",
+    [id],
+  );
+  return resultat.rows[0];
+}
+
 module.exports = {
   creerUtilisateur,
   trouverUtilisateurParEmail,
   trouverUtilisateurParId,
   modifierUtilisateur,
+  remplacerMotDePasse,
+  supprimerUtilisateur,
 };
